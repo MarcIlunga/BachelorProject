@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Privacy Preserving Housing</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_phase_one">PhaseOneActivity</string>
+</resources>
