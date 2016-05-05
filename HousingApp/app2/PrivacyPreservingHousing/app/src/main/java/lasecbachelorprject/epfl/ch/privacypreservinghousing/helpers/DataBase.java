@@ -44,22 +44,25 @@ public class DataBase {
         return owner;
     }
 
-    public void computeGainSecurly(Participant participant, Owner owner) {
+    public void computeGainSecurely(Participant participant, Owner owner) {
         participant.secureDotProduct.initiateDotProduct();
         participant.sendInitialDataToOwner(owner);
         owner.me.sendAH(participant.secureDotProduct);
         participant.convertGain(owner.l);
     }
 
-    public void publishElgamlPublicKey(Participant p, BigInteger key){
+    public void publishElGamalPublicKey(Participant p, BigInteger key){
         poll.publicshKey(p,key);
     }
 
     //TODO
-    public boolean proveKeyToOthers(Participant participant){
+    public boolean proveKeyToOthers(Participant participant) throws IllegalAccessException {
         boolean proof = true;
         for (Participant p: participants) {
             BigInteger key = poll.getKeyOfParticipant(participant);
+            if(key == null){
+                throw  new IllegalAccessException("The public key of: "+participant.toString() +" is not in the DataBase" );
+            }
             if(!participant.equals(p)){
                 participant.prover.initiateProof();
                 p.setKeyToVerify(key);

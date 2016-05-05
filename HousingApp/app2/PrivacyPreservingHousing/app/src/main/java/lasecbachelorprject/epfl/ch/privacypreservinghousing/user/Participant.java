@@ -25,7 +25,6 @@ public class Participant extends Person implements User {
     public ZeroKnowledgeProver prover;
     public ZeroKnowledgeVerifier verifier;
     private SecureRandom random;
-    private int replyVector[];
     private Group group;
     int replyEqSize;
     int replyGrSize;
@@ -74,7 +73,7 @@ public class Participant extends Person implements User {
     public void generatePrivateKey(){
         privateKey = (new BigInteger(prime.bitLength(),random)).mod(prime);
         publicKey = generator.modPow(privateKey,prime);
-        DataBase.getDataBase().publishElgamlPublicKey(this, publicKey);
+        DataBase.getDataBase().publishElGamalPublicKey(this, publicKey);
         prover.setX(privateKey);
     }
 
