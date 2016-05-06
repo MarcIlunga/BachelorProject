@@ -37,8 +37,10 @@ public class ZeroKnowledgeProver {
     private void computeZ(BigInteger c){
         z = (r.add(x.multiply(c))).mod(pMinusOne);
     }
-    public void sendZ(ZeroKnowledgeVerifier verifier){
-        verifier.receiveZ(z);
+
+    public BigInteger sendZ(BigInteger c){
+        computeZ(c);
+        return z;
     }
 
 

@@ -58,18 +58,23 @@ public class DataBase {
     //TODO
     public boolean proveKeyToOthers(Participant participant) throws IllegalAccessException {
         boolean proof = true;
+        BigInteger c = BigInteger.ZERO;
+        BigInteger key = poll.getKeyOfParticipant(participant);
+        if(key == null){
+            throw  new IllegalAccessException("The public key of: "+participant.toString() +" is not in the DataBase" );
+        }
         for (Participant p: participants) {
-            BigInteger key = poll.getKeyOfParticipant(participant);
-            if(key == null){
-                throw  new IllegalAccessException("The public key of: "+participant.toString() +" is not in the DataBase" );
-            }
             if(!participant.equals(p)){
                 participant.prover.initiateProof();
                 p.setKeyToVerify(key);
                 participant.prover.sendH(p.verifier);
-                p.verifier.sendC(participant.prover);
-                participant.prover.sendZ(p.verifier);
-                proof = proof && p.verifier.verify();
+                c = c.add(p.verifier.sendC());
+            }
+        }
+        BigInteger z = participant.prover.sendZ(c);
+        for(Participant p: participants){
+            if(!participant.equals(p)){
+                proof = proof && participant.verifier.verifyWithZ(z,c);
             }
         }
         return proof;

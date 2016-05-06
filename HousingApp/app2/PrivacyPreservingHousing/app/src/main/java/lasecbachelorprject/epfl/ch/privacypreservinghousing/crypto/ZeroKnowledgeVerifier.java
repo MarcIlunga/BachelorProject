@@ -19,17 +19,13 @@ public class ZeroKnowledgeVerifier {
         secureRandom = new SecureRandom();
     }
 
-    public void sendC(ZeroKnowledgeProver prover){
+    public BigInteger sendC(){
         c = new BigInteger(group.bitLength(), secureRandom);
-        c = c.mod(pMinusOne);
-        prover.receiveC(c);
+        return  c = c.mod(pMinusOne);
+
     }
 
-    public boolean verify(){
-        BigInteger gPowZ = generator.modPow(z,group);
-        BigInteger hTimesYPowC = (h.multiply(y.modPow(c, group))).mod(group);
-        return  gPowZ.equals(hTimesYPowC);
-    }
+
 
     public void receiveH(BigInteger h) {
         this.h = h;
@@ -41,5 +37,12 @@ public class ZeroKnowledgeVerifier {
 
     public void setY(BigInteger y) {
         this.y = y;
+    }
+
+
+    public boolean verifyWithZ(BigInteger z, BigInteger sharedC) {
+        BigInteger gPowZ = generator.modPow(z,group);
+        BigInteger hTimesYPowC = (h.multiply(y.modPow(sharedC, group))).mod(group);
+        return  gPowZ.equals(hTimesYPowC);
     }
 }
