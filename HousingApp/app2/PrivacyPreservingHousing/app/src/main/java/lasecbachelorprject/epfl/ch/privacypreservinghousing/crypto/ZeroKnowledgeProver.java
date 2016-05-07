@@ -8,13 +8,13 @@ public class ZeroKnowledgeProver {
     private BigInteger x;
     private BigInteger h;
     private BigInteger z;
-    private BigInteger group, generator,pMinusOne;
+    private BigInteger prime,group, generator,pMinusOne;
     private SecureRandom secureRandom;
     public BigInteger r;
 
     //TODO: Group should be the published key
-    public ZeroKnowledgeProver(BigInteger x, BigInteger group, BigInteger generator){
-        this.x = x;
+    public ZeroKnowledgeProver(BigInteger prime, BigInteger group, BigInteger generator){
+        this.prime = prime;
         this.group = group;
         this.generator = generator;
         this.pMinusOne = group.subtract(BigInteger.ONE);
@@ -26,8 +26,8 @@ public class ZeroKnowledgeProver {
     }
     private void generateH(){
         r = new BigInteger(group.bitLength(),secureRandom);
-        r = r.mod(pMinusOne);
-        h = generator.modPow(r, group);
+        r = r.mod(group);
+        h = generator.modPow(r, prime);
     }
 
     public void sendH(ZeroKnowledgeVerifier verifier){
@@ -35,7 +35,7 @@ public class ZeroKnowledgeProver {
     }
 
     private void computeZ(BigInteger c){
-        z = (r.add(x.multiply(c))).mod(pMinusOne);
+        z = (r.add(x.multiply(c))).mod(group);
     }
 
     public BigInteger sendZ(BigInteger c){

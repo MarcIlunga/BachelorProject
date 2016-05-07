@@ -7,21 +7,21 @@ public class ZeroKnowledgeVerifier {
     private BigInteger y;
     private BigInteger h;
     private BigInteger z;
-    private BigInteger group, generator, pMinusOne;
+    private BigInteger prime, group, generator, qMinusOne;
     private BigInteger c;
     private SecureRandom secureRandom;
 
-    public ZeroKnowledgeVerifier(BigInteger y, BigInteger group, BigInteger generator){
-        this.y = y;
+    public ZeroKnowledgeVerifier(BigInteger prime, BigInteger group, BigInteger generator){
+        this.prime = prime;
         this.generator = generator;
         this.group = group;
-        this.pMinusOne = group.subtract(BigInteger.ONE);
+        this.qMinusOne = group.subtract(BigInteger.ONE);
         secureRandom = new SecureRandom();
     }
 
     public BigInteger sendC(){
         c = new BigInteger(group.bitLength(), secureRandom);
-        return  c = c.mod(pMinusOne);
+        return  c = c.mod(group);
 
     }
 
@@ -41,8 +41,8 @@ public class ZeroKnowledgeVerifier {
 
 
     public boolean verifyWithZ(BigInteger z, BigInteger sharedC) {
-        BigInteger gPowZ = generator.modPow(z,group);
-        BigInteger hTimesYPowC = (h.multiply(y.modPow(sharedC, group))).mod(group);
+        BigInteger gPowZ = generator.modPow(z,prime);
+        BigInteger hTimesYPowC = (h.multiply(y.modPow(sharedC, prime))).mod(prime);
         return  gPowZ.equals(hTimesYPowC);
     }
 }

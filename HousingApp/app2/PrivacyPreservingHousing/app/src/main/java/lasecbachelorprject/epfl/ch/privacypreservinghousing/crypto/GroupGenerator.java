@@ -3,32 +3,29 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class PrimeGenerator {
+public class GroupGenerator {
 
     private int minBitLength;
 
     int certainty;
 
-
-    private static  BigInteger ZERO = BigInteger.ZERO;
     private static BigInteger ONE = BigInteger.ONE;
     private static BigInteger TWO = ONE.add(ONE);
-    private static BigInteger generator, prime;
-    private static BigInteger  THREE = TWO.add(ONE);
-    private BigInteger q;
+    private static BigInteger generator, prime, group;
     private SecureRandom secureRandom;
-    private static PrimeGenerator primeGenerator;
+    private static GroupGenerator groupGenerator;
 
-    public PrimeGenerator(int minBitLength, int certainty, SecureRandom secureRandom, boolean lengthCheck){
+    public GroupGenerator(int minBitLength, int certainty, SecureRandom secureRandom, boolean lengthCheck){
         if(minBitLength < 512 && lengthCheck )
                 throw  new IllegalArgumentException("Prime should have at least 512 bits");
         this.minBitLength = minBitLength;
         this.certainty = certainty;
         this.secureRandom = secureRandom;
+        getSafePrime();
 
     }
 
-    private PrimeGenerator(){
+    private GroupGenerator(){
 
     }
 
@@ -42,9 +39,9 @@ public class PrimeGenerator {
 
             a = a.add(ONE);
 
-            q = new BigInteger(minBitLength,certainty,secureRandom);
+            group = new BigInteger(minBitLength,certainty,secureRandom);
 
-            prime = a.multiply(q).add(ONE);
+            prime = a.multiply(group).add(ONE);
         }
         while(!prime.isProbablePrime(certainty));
 
@@ -72,6 +69,10 @@ public class PrimeGenerator {
     }
     public  BigInteger getGenerator(){
         return  generator;
+    }
+
+    public BigInteger getGroup(){
+        return group;
     }
 
 /*    public boolean isGenerator(BigInteger p, BigInteger g, int certainty ){

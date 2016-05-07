@@ -4,13 +4,12 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.user;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.Group;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.SecureDotProductParty;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ZeroKnowledgeProver;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ZeroKnowledgeVerifier;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.DataBase;
 
-import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.Group.getGroup;
 import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.SecureDotProductParty.copyBigIntArrayToIntArray;
 
 public class Participant extends Person implements User {
@@ -25,7 +24,7 @@ public class Participant extends Person implements User {
     public ZeroKnowledgeProver prover;
     public ZeroKnowledgeVerifier verifier;
     private SecureRandom random;
-    private Group group;
+    private BigInteger group;
     int replyEqSize;
     int replyGrSize;
     private BigInteger gain;
@@ -39,13 +38,13 @@ public class Participant extends Person implements User {
         generateWPrimeVector(replyGr, replyEq);
         secureDotProduct = new SecureDotProductParty();
         secureDotProduct.setMyvector(wPrimeVector);
-        group = getGroup();
-        prime  = group.getPrime();
-        generator = group.getGenerator();
+        group = Application.group;
+        prime  = Application.prime;
+        generator = Application.generator;
         random = new SecureRandom();
 
-        prover = new ZeroKnowledgeProver(BigInteger.ZERO,prime,generator);
-        verifier = new ZeroKnowledgeVerifier(BigInteger.ZERO, prime, generator);
+        prover = new ZeroKnowledgeProver(prime, group,generator);
+        verifier = new ZeroKnowledgeVerifier(prime,group, generator);
     }
 
     private void generateWPrimeVector(BigInteger replyGr[], BigInteger[] replyEq) {
@@ -83,7 +82,6 @@ public class Participant extends Person implements User {
     }
 
     public void createBinaryGain(){
-
         binaryWprime = (gain.toString(2)).split("");
     }
 
@@ -94,6 +92,7 @@ public class Participant extends Person implements User {
 
     }
 
+    //TODO Delegate the task of encryption to the Cryptosystem
     public BigInteger [] encryptMessage(String s){
         BigInteger k = new BigInteger(prime.bitLength(), new SecureRandom());
         k = k.mod(prime);
@@ -105,5 +104,6 @@ public class Participant extends Person implements User {
         return cipher;
 
     }
+    
 
 }

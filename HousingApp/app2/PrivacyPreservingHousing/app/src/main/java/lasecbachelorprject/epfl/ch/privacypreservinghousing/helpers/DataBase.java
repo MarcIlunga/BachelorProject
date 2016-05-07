@@ -11,8 +11,8 @@ import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 public class DataBase {
 
     public Owner owner;
-    public Poll poll;
-    public List<Participant> participants;
+    public static Poll poll;
+    private static List<Participant> participants;
     public static DataBase dataBase;
 
     private  DataBase(){
@@ -36,6 +36,10 @@ public class DataBase {
         participants.add(p);
     }
 
+    public List<Participant> getParticipants(){
+        return new ArrayList(participants);
+    }
+
     public Poll getPoll(){
         return poll;
     }
@@ -56,16 +60,16 @@ public class DataBase {
     }
 
     //TODO
-    public boolean proveKeyToOthers(Participant participant) throws IllegalAccessException {
+    public static boolean proveKeyToOthers(Participant participant) throws IllegalAccessException {
         boolean proof = true;
         BigInteger c = BigInteger.ZERO;
         BigInteger key = poll.getKeyOfParticipant(participant);
         if(key == null){
             throw  new IllegalAccessException("The public key of: "+participant.toString() +" is not in the DataBase" );
         }
+        participant.prover.initiateProof();
         for (Participant p: participants) {
             if(!participant.equals(p)){
-                participant.prover.initiateProof();
                 p.setKeyToVerify(key);
                 participant.prover.sendH(p.verifier);
                 c = c.add(p.verifier.sendC());
@@ -74,7 +78,7 @@ public class DataBase {
         BigInteger z = participant.prover.sendZ(c);
         for(Participant p: participants){
             if(!participant.equals(p)){
-                proof = proof && participant.verifier.verifyWithZ(z,c);
+                proof = proof && p.verifier.verifyWithZ(z,c);
             }
         }
         return proof;
