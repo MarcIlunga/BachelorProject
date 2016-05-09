@@ -104,6 +104,6 @@ public class Participant extends Person implements User {
         return cipher;
 
     }
-    
+
 
 }
