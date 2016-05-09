@@ -3,6 +3,7 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
@@ -13,7 +14,9 @@ public class DataBase {
     public Owner owner;
     public static Poll poll;
     private static List<Participant> participants;
+    private static List<List<BigInteger[][]>> V; //Vector off all comparisons
     public static DataBase dataBase;
+    private int participantsNumber;
 
     private  DataBase(){
         participants = new ArrayList<>();
@@ -33,7 +36,9 @@ public class DataBase {
         this.poll = poll;
     }
     public void addParticipant(Participant p){
-        participants.add(p);
+        participants.add(participantsNumber,p);
+        p.setMyCandidateNumber(participantsNumber);
+        participantsNumber += 1;
     }
 
     public List<Participant> getParticipants(){
@@ -92,6 +97,12 @@ public class DataBase {
         return key;
     }
 
+    public static void pushComparisonVector(Participant p, List<BigInteger[][]> epsilon){
+        V.add(participants.indexOf(p), epsilon);
+    }
 
 
+    public static void pushPartialListDecryption(List<List<BigInteger[][]>> list) {
+        V = list;
+    }
 }

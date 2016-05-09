@@ -3,8 +3,12 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.user;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.List;
+import java.util.Map;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ElGamal;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.GainComparisonHelper;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.SecureDotProductParty;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ZeroKnowledgeProver;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ZeroKnowledgeVerifier;
@@ -29,6 +33,9 @@ public class Participant extends Person implements User {
     int replyGrSize;
     private BigInteger gain;
     private BigInteger[][] cypher;
+    private int myCandidateNumber;
+    private List<List<BigInteger[][]>> list;
+    private GainComparisonHelper comparisonTool = GainComparisonHelper.getGainComparisonTool();
 
 
     public Participant(BigInteger replyGr[], BigInteger[] replyEq){
@@ -88,22 +95,28 @@ public class Participant extends Person implements User {
     public void encryptWithcommonkey(){
         cypher = new BigInteger[binaryWprime.length][2];
         for (int i = 0; i <binaryWprime.length ; i++)
-            cypher[i] = encryptMessage(binaryWprime[i]);
+            cypher[i] = ElGamal.encrypt(BigInteger.valueOf(Long.parseLong(binaryWprime[i])));
 
     }
 
-    //TODO Delegate the task of encryption to the Cryptosystem
-    public BigInteger [] encryptMessage(String s){
-        BigInteger k = new BigInteger(prime.bitLength(), new SecureRandom());
-        k = k.mod(prime);
-        BigInteger gPowMessage = generator.modPow(BigInteger.valueOf(Long.parseLong(s)),prime);
-        BigInteger yPowK = publicKey.modPow(k, prime);
-        BigInteger[] cipher = new BigInteger[2];
-        cipher[0] = gPowMessage.multiply(yPowK).mod(prime);
-        cipher[1] = generator.modPow(k, prime);
-        return cipher;
+
+    public void setMyCandidateNumber (int number){
+        myCandidateNumber = number;
+    }
+
+    public void sendEncryptedComparisonToDB(){
+        DataBase.pushComparisonVector(this,comparisonTool.getEncryptedComparisons());
+    }
+
+    public void getEpsilonVector(List<List<BigInteger[][]>> list){
+        this.list = comparisonTool.processList(list,myCandidateNumber,privateKey,prime);
 
     }
+    public void sendBackDecryptedListToDB(){
+        DataBase.pushPartialListDecryption(list);
+    }
+
+
 
 
 }

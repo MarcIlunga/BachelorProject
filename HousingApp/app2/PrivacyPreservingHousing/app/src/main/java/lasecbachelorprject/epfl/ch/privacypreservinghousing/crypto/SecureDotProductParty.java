@@ -259,6 +259,14 @@ public class SecureDotProductParty  {
         return v;
     }
 
+    public static BigInteger[] vectorsElemMult(BigInteger[] v1, BigInteger[] v2){
+        BigInteger[] res = new BigInteger[v1.length];
+        for (int i = 0; i <v1.length ; i++) {
+            res[i] = v1[i].multiply(v2[i]);
+        }
+        return res;
+    }
+
     public static BigInteger  vectorElementsSum(BigInteger [] v1){
         int dim = v1.length;
         BigInteger  res = BigInteger.ZERO;
@@ -275,6 +283,19 @@ public class SecureDotProductParty  {
         return vector;
     }
 
+    public static BigInteger[] vectorsElemExpo(BigInteger[] v, int expo){
+        for (int i = 0; i < v.length; i++) {
+            v[i] = v[i].pow(expo);
+        }
+        return v;
+    }
+
+    public static BigInteger[] vectorsElemModExpo(BigInteger[] v, BigInteger expo, BigInteger group){
+        for (int i = 0; i < v.length; i++) {
+            v[i] = v[i].modPow(expo,group);
+        }
+        return v;
+    }
 
 
 

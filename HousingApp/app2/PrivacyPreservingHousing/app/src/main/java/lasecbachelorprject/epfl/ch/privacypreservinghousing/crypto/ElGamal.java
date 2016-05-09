@@ -2,6 +2,7 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Collection;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
 
@@ -16,26 +17,26 @@ public class ElGamal {
     private static final BigInteger TWO = ONE.add(ONE);
     private static final BigInteger THREE = TWO.add(ONE);
     private static ElGamal cryptoSystem;
-    private SecureRandom secureRandom;
+    private static SecureRandom secureRandom;
 
     //TODO: fix group, generator. Add method for secret key
     
-    private ElGamal(){
-        prime = Application.prime;
-        group = Application.group;
-        generator = Application.generator;
-        this.secureRandom = new SecureRandom();
+    private ElGamal(BigInteger prime, BigInteger group, BigInteger generator){
+        this.prime = prime;
+        this.group = Application.group;
+        this.generator = Application.generator;
+        secureRandom = new SecureRandom();
     }
 
-    public static ElGamal getElGamal(){
+    public static ElGamal getElGamal(BigInteger prime, BigInteger group, BigInteger generator){
         if (cryptoSystem == null){
-            cryptoSystem = new ElGamal();
+            cryptoSystem = new ElGamal(prime, group, generator);
         }
         return cryptoSystem;
     }
 
 
-    public BigInteger[] encrypt(BigInteger message){
+    public static BigInteger[] encrypt(BigInteger message){
         if(message == null) {
             throw new IllegalArgumentException("Message to encrypt is null");
         }
@@ -83,8 +84,34 @@ public class ElGamal {
     public MyElGamalEncrypter getEncrypter() {
         return new MyElGamalEncrypter(prime, generator, publicKey);
     }
-    public MyElGamalDecrypter getDecrypter() {
-        return new MyElGamalDecrypter(prime, privateKey);
+
+    public static BigInteger[] homomorphicEncryption(Collection<BigInteger[]> ciphers){
+        BigInteger[] res = new  BigInteger[]{BigInteger.ONE,BigInteger.ONE};
+        for (BigInteger[] c: ciphers) {
+            res = SecureDotProductParty.vectorsElemMult(res,c);
+        }
+        return res;
     }
+
+    public static BigInteger[] getNegativeciphers(BigInteger[] cypher){
+        return SecureDotProductParty.vectorsElemModExpo(cypher,BigInteger.valueOf(Long.parseLong("-1")),prime);
+    }
+
+    public static BigInteger[] homomorphicEncryption(BigInteger[] c1, BigInteger[] c2){
+        return SecureDotProductParty.vectorsElemMult(c1,c2);
+    }
+
+    public static BigInteger[] homomorphicEncryption(BigInteger[]... ciphers){
+        BigInteger[] res = new BigInteger []{BigInteger.ONE, BigInteger.ONE};
+        for(BigInteger[] c : ciphers){
+            res = homomorphicEncryption(res,c);
+        }
+        return res;
+    }
+
+    public static BigInteger[] multHomomorphicEncryption(BigInteger[]cipher, BigInteger otherWord){
+       return SecureDotProductParty.vectorsElemModExpo(cipher,otherWord,prime);
+    }
+
 
 }
