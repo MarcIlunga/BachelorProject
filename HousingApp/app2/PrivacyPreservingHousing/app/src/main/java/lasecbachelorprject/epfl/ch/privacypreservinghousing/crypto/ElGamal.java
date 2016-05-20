@@ -23,8 +23,8 @@ public class ElGamal {
     
     private ElGamal(BigInteger prime, BigInteger group, BigInteger generator){
         this.prime = prime;
-        this.group = Application.group;
-        this.generator = Application.generator;
+        this.group = group;
+        this.generator = generator;
         secureRandom = new SecureRandom();
     }
 
@@ -36,18 +36,26 @@ public class ElGamal {
     }
 
 
-    public static BigInteger[] encrypt(BigInteger message){
-        if(message == null) {
+    public static BigInteger[] encrypt(BigInteger bit){
+        if(bit == null) {
             throw new IllegalArgumentException("Message to encrypt is null");
         }
         BigInteger r = new BigInteger(group.bitLength(), secureRandom);
         r = r.mod(group);
-        BigInteger gPowMessage = generator.modPow(message,prime);
+        BigInteger gPowMessage = generator.modPow(bit,prime);
         BigInteger yPowR = publicKey.modPow(r, prime);
         BigInteger[] cipher = new BigInteger[2];
         cipher[0] = gPowMessage.multiply(yPowR).mod(prime);
         cipher[1] = generator.modPow(r, prime);
         return cipher;
+    }
+
+    public static BigInteger[][] encryptMany(BigInteger[] bits){
+        BigInteger[][] res = new BigInteger[bits.length][2];
+        for (int i = 0; i <bits.length ; i++) {
+            res[i] = encrypt(bits[i]);
+        }
+        return res;
     }
 
     public void setPrivateKey(BigInteger privateKey){
@@ -59,22 +67,23 @@ public class ElGamal {
         publicKey = generator.modPow(privateKey,prime);
     }
 
-    public BigInteger decrypt(BigInteger c0, BigInteger c1){
-        if(c0 == null || c1 == null)
-            throw new IllegalArgumentException("The couple to decrypt contains a null argument");
-        BigInteger c = c1.modPow(privateKey, prime).modInverse(prime);
-        BigInteger encryptedBit = c0.multiply(c).mod(prime);
-        return encryptedBit.equals(BigInteger.ONE) ? BigInteger.ZERO : BigInteger.ONE;
-    }
 
     public BigInteger decrypt(BigInteger[] cypher){
         if(cypher == null || cypher.length != 2|| cypher[0] == null|| cypher[1] == null ){
             throw new IllegalArgumentException("null or bad length cypher");
         }
 
-        BigInteger msg = (cypher[0].divide(cypher[1].modPow(privateKey,prime))).mod(prime);
+        BigInteger msg = (cypher[0].multiply(cypher[1].modPow(privateKey.negate(),prime))).mod(prime);
 
         return msg.equals(BigInteger.ONE) ? BigInteger.ZERO : BigInteger.ONE;
+    }
+
+    public BigInteger[] decryptMany(BigInteger[][] table){
+        BigInteger[] res = new BigInteger[table.length];
+        for (int i = 0; i < res.length ; i++) {
+            res[i] = decrypt(table[i]);
+        }
+        return res;
     }
 
     public BigInteger getPublicKey(){
@@ -88,7 +97,7 @@ public class ElGamal {
     public static BigInteger[] homomorphicEncryption(Collection<BigInteger[]> ciphers){
         BigInteger[] res = new  BigInteger[]{BigInteger.ONE,BigInteger.ONE};
         for (BigInteger[] c: ciphers) {
-            res = SecureDotProductParty.vectorsElemMult(res,c);
+            res = SecureDotProductParty.vectorsElemMultMod(res,c,prime);
         }
         return res;
     }
@@ -98,7 +107,7 @@ public class ElGamal {
     }
 
     public static BigInteger[] homomorphicEncryption(BigInteger[] c1, BigInteger[] c2){
-        return SecureDotProductParty.vectorsElemMult(c1,c2);
+        return SecureDotProductParty.vectorsElemMultMod(c1,c2,prime);
     }
 
     public static BigInteger[] homomorphicEncryption(BigInteger[]... ciphers){
@@ -114,4 +123,11 @@ public class ElGamal {
     }
 
 
+    public static BigInteger[][] encryptManyWithKey(BigInteger[] bits, BigInteger y) {
+        BigInteger[][] res = new BigInteger[bits.length][2];
+        for (int i = 0; i <bits.length ; i++) {
+            res[i] = encrypt(bits[i]);
+        }
+        return res;
+    }
 }

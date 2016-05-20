@@ -5,15 +5,14 @@ import java.security.SecureRandom;
 
 public class GroupGenerator {
 
-    private int minBitLength;
+    private static int minBitLength;
 
-    int certainty;
+    private static int certainty;
 
     private static BigInteger ONE = BigInteger.ONE;
     private static BigInteger TWO = ONE.add(ONE);
     private static BigInteger generator, prime, group;
-    private SecureRandom secureRandom;
-    private static GroupGenerator groupGenerator;
+    private static SecureRandom secureRandom;
 
     public GroupGenerator(int minBitLength, int certainty, SecureRandom secureRandom, boolean lengthCheck){
         if(minBitLength < 512 && lengthCheck )
@@ -31,7 +30,7 @@ public class GroupGenerator {
 
 
 
-    private void getSafePrime(){
+    private static void getSafePrime(){
 
         BigInteger a;
         do {
@@ -60,18 +59,18 @@ public class GroupGenerator {
     }
 
 
-    public BigInteger getPrime(){
+    public static BigInteger getPrime(){
         if(prime == null)
         {
             getSafePrime();
         }
         return prime;
     }
-    public  BigInteger getGenerator(){
+    public  static BigInteger getGenerator(){
         return  generator;
     }
 
-    public BigInteger getGroup(){
+    public  static BigInteger getGroup(){
         return group;
     }
 
