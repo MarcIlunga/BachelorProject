@@ -10,12 +10,7 @@ public class ElGamal {
 
 
     private  static BigInteger prime,group,generator, privateKey, publicKey;
-    private static final int certainty = 300;
-    private static final String config = "myElgamalConfig.txt";
-    private static final BigInteger ZERO = BigInteger.ZERO;
     private static final BigInteger ONE = BigInteger.ONE;
-    private static final BigInteger TWO = ONE.add(ONE);
-    private static final BigInteger THREE = TWO.add(ONE);
     private static ElGamal cryptoSystem;
     private static SecureRandom secureRandom;
 
