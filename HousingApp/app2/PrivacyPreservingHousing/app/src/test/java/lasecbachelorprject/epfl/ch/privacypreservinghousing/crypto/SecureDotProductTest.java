@@ -2,8 +2,11 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto;
 
 import org.junit.Test;
 
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.StopWatch;
 
 import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.SecureDotProductParty.normalDotProduct;
 import static org.junit.Assert.assertEquals;
@@ -12,12 +15,18 @@ public class SecureDotProductTest {
 
     @Test
     public void testDotProduct() throws Exception {
-        BigInteger [] alicesVector = new BigInteger[10];
-        BigInteger [] bobsVector = new BigInteger[10];
-        SecureRandom rd = new SecureRandom();
+        StopWatch timer = StopWatch.getStopWatch();
+        PrintWriter writer = new PrintWriter("DotProdTime", "UTF-8");
 
-            for (int j = 0; j < 10; j++) {
-                alicesVector[j] =BigInteger.valueOf(rd.nextInt(10));
+        for (int i = 1; i < 25 ; i++) {
+
+            BigInteger[] alicesVector = new BigInteger[i];
+            BigInteger[] bobsVector = new BigInteger[i];
+            SecureRandom rd = new SecureRandom();
+
+            timer.start();
+            for (int j = 0; j < i; j++) {
+                alicesVector[j] = BigInteger.valueOf(rd.nextInt(10));
                 bobsVector[j] = BigInteger.valueOf(rd.nextInt(10));
             }
             SecureDotProductParty alice = new SecureDotProductParty(BigInteger.TEN);
@@ -30,11 +39,13 @@ public class SecureDotProductTest {
             alice.sendBeta(bob);
             bob.sendAlpha(alice);
 
-            assertEquals(bob.getAlpha(),alice.getAlpha());
-            assertEquals(bob.getBeta(),alice.getBeta());
-            assertEquals(normalDotProduct(alicesVector,bobsVector),alice.getBeta().subtract(bob.getAlpha()));
-
-
+            assertEquals(bob.getAlpha(), alice.getAlpha());
+            assertEquals(bob.getBeta(), alice.getBeta());
+            assertEquals(normalDotProduct(alicesVector, bobsVector), alice.getBeta().subtract(bob.getAlpha()));
+            timer.stop();
+            writer.println("Size of matrix :" + i + " time: " + timer.ellapsedTime() + " ms");
+        }
+        writer.close();
     }
 
     /*

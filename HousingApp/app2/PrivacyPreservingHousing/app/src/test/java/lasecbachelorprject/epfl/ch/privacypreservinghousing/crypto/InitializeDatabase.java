@@ -48,9 +48,9 @@ public class InitializeDatabase {
                 }
             }
 
-            Participant p = new Participant(replyGr, replyEq);
-            participants.add(i, p);
-            database.addParticipant(p);
+            //TODO Participant p = new Participant(replyGr, replyEq);
+           // participants.add(i, p);
+            //database.addParticipant(p);
         }
 
     }

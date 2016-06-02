@@ -26,7 +26,7 @@ public class Phase1Test {
         owner = InitializeDatabase.owner;
         for (Participant p : InitializeDatabase.participants) {
             database.addParticipant(p);
-            database.computeGainSecurly(p, owner);
+            database.computeGainSecurely(p, owner);
             BigInteger expectedgain = SecureDotProductParty.normalDotProduct(p.getReplyVector(), owner.getMyAttVector()).add(owner.me.getRhoForParticipant());
             assertEquals(expectedgain, p.secureDotProduct.getBeta());
         }
@@ -75,7 +75,7 @@ public class Phase1Test {
 
         for (Participant p : participants) {
             database.addParticipant(p);
-            database.computeGainSecurly(p, owner);
+            database.computeGainSecurely(p, owner);
             int expectedgain = SecureDotProductParty.normalDotProduct(p.getReplyVector(), owner.getMyAttVector()) - owner.me.getRhoForParticipant();
             assertEquals(expectedgain, p.secureDotProduct.getBeta());
         }

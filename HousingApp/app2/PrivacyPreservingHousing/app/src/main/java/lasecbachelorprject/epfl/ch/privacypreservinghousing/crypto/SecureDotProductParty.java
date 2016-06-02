@@ -64,7 +64,7 @@ public class SecureDotProductParty  {
 
 
         //TODO : Constant matrix dimension
-        sDimension = 10; //1 + secureRandom.nextInt(10);
+        sDimension = 100; //1 + secureRandom.nextInt(10);
         rThRow = secureRandom.nextInt(sDimension);
 
         //Genrate Q  and compute b. TODO: Skip rth row in the for an assigne later
@@ -259,6 +259,25 @@ public class SecureDotProductParty  {
         return v;
     }
 
+    public static BigInteger[] vectorsElemMult(BigInteger[] v1, BigInteger[] v2){
+        BigInteger[] res = new BigInteger[v1.length];
+        for (int i = 0; i <v1.length ; i++) {
+            res[i] = v1[i].multiply(v2[i]);
+        }
+        return res;
+    }
+
+    public static BigInteger[] vectorsElemMultMod(BigInteger[] v1, BigInteger[] v2,BigInteger prime){
+        BigInteger[] res = new BigInteger[v1.length];
+        for (int i = 0; i <v1.length ; i++) {
+            res[i] = (v1[i].multiply(v2[i])).mod(prime);
+        }
+        return res;
+    }
+
+
+
+
     public static BigInteger  vectorElementsSum(BigInteger [] v1){
         int dim = v1.length;
         BigInteger  res = BigInteger.ZERO;
@@ -269,12 +288,35 @@ public class SecureDotProductParty  {
     }
 
     public static BigInteger [] vectorScalarMult(BigInteger []vector, BigInteger  scalar){
+        BigInteger[] res = new BigInteger[vector.length];
         for (int i = 0; i < vector.length ; i++) {
-            vector[i] = vector[i].multiply(scalar);
+            res[i] = vector[i].multiply(scalar);
         }
-        return vector;
+        return res;
     }
 
+    public static BigInteger[] vectorScalarMultMod(BigInteger[] vector, BigInteger scalar, BigInteger prime){
+        BigInteger[] res = new BigInteger[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            res[i] = (vector[i].multiply(scalar)).mod(prime);
+        }
+        return res;
+    }
+
+    public static BigInteger[] vectorsElemExpo(BigInteger[] v, int expo){
+        for (int i = 0; i < v.length; i++) {
+            v[i] = v[i].pow(expo);
+        }
+        return v;
+    }
+
+    public static BigInteger[] vectorsElemModExpo(BigInteger[] v, BigInteger expo, BigInteger prime){
+        BigInteger[] res = new BigInteger[v.length];
+        for (int i = 0; i < v.length; i++) {
+            res[i] = v[i].modPow(expo,prime);
+        }
+        return res;
+    }
 
 
 

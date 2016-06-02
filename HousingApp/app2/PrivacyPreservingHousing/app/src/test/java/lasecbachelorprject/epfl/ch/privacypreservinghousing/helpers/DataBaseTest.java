@@ -20,7 +20,11 @@ public class DataBaseTest {
 
         for (Participant p: participants) {
             p.generatePrivateKey();
-            assertTrue(dataBase.proveKeyToOthers(p));
+            try {
+                assertTrue(dataBase.proveKeyToOthers(p));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
 
         }
     }
