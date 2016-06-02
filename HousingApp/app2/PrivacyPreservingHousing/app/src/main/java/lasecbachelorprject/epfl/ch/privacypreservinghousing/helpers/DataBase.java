@@ -1,7 +1,10 @@
 package lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers;
 
+import android.renderscript.RSInvalidStateException;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,10 +19,17 @@ public class DataBase {
     private static List<Participant> participants;
     private static List<List<BigInteger[][]>> V; //Vector off all comparisons
     public static DataBase dataBase;
+    private static Map<Participant,BigInteger[]> winnersVect;
+    private static Map<Participant, Integer> whinersRanking;
+    private static BigInteger commonKey = null;
     private int participantsNumber;
+    private int length;
+    private int nbGoodCanditates;
 
     private  DataBase(){
         participants = new ArrayList<>();
+        whinersRanking = new HashMap<>();
+        winnersVect = new HashMap<>();
     }
 
     public static DataBase getDataBase(){
@@ -39,6 +49,18 @@ public class DataBase {
         participants.add(participantsNumber,p);
         p.setMyCandidateNumber(participantsNumber);
         participantsNumber += 1;
+    }
+
+    public void publishBitLength(int length){
+        this.length = length;
+    }
+
+    public int getL(){
+        return length;
+    }
+
+    public int getK(){
+        return nbGoodCanditates;
     }
 
     public List<Participant> getParticipants(){
@@ -89,12 +111,14 @@ public class DataBase {
         return proof;
     }
 
-    public BigInteger getEncryptionKey(){
-        BigInteger key = BigInteger.ONE;
-        for (BigInteger b: poll.getKeySet()) {
-            key  = (key.multiply(b)).mod(Application.prime);
+    public static BigInteger getEncryptionKey(){
+        if(commonKey == null) {
+            commonKey = BigInteger.ONE;
+            for (BigInteger b : poll.getKeySet()) {
+                commonKey = (commonKey.multiply(b)).mod(Application.prime);
+            }
         }
-        return key;
+        return commonKey;
     }
 
     public static void pushComparisonVector(Participant p, List<BigInteger[][]> epsilon){
@@ -104,5 +128,28 @@ public class DataBase {
 
     public static void pushPartialListDecryption(List<List<BigInteger[][]>> list) {
         V = list;
+    }
+
+
+    /**
+     *
+     */
+    public static void sendFinalDecryptionToParticipants(){
+        int nbParticipants = participants.size();
+        if(nbParticipants != V.size()){
+            throw new RSInvalidStateException("Fatal error");
+        }
+        for (int i = 0; i < nbParticipants ; i++) {
+            participants.get(i).receiveFinalComp(V.get(i));
+        }
+    }
+
+    public void setNbGoodCanditates(int nbGoodCanditates) {
+        this.nbGoodCanditates = nbGoodCanditates;
+    }
+
+    public static void submitsResults(Participant participant, int ranking, BigInteger[] wPrimeVector){
+        winnersVect.put(participant,wPrimeVector);
+        whinersRanking.put(participant,ranking);
     }
 }

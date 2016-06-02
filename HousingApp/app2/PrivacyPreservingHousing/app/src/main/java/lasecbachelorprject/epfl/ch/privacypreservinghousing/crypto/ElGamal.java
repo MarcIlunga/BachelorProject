@@ -2,21 +2,31 @@ package lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 
 public class ElGamal {
 
 
-    private  static BigInteger prime,group,generator, privateKey, publicKey;
+    private static BigInteger prime,group,generator, privateKey, myPublicKey;
     private static final BigInteger ONE = BigInteger.ONE;
     private static ElGamal cryptoSystem;
     private static SecureRandom secureRandom;
+    private static BigInteger commonKey;
+    //TODO: Remove after test
+    private static Map<Participant, BigInteger> mySecretKey;
+    private static Map<Participant, BigInteger> myPukey;
 
     //TODO: fix group, generator. Add method for secret key
     
     private ElGamal(BigInteger prime, BigInteger group, BigInteger generator){
+        mySecretKey = new HashMap<>();
+        myPukey= new HashMap<>();
         this.prime = prime;
         this.group = group;
         this.generator = generator;
@@ -31,6 +41,7 @@ public class ElGamal {
     }
 
 
+
     public static BigInteger[] encrypt(BigInteger bit){
         if(bit == null) {
             throw new IllegalArgumentException("Message to encrypt is null");
@@ -38,7 +49,7 @@ public class ElGamal {
         BigInteger r = new BigInteger(group.bitLength(), secureRandom);
         r = r.mod(group);
         BigInteger gPowMessage = generator.modPow(bit,prime);
-        BigInteger yPowR = publicKey.modPow(r, prime);
+        BigInteger yPowR = commonKey.modPow(r, prime);
         BigInteger[] cipher = new BigInteger[2];
         cipher[0] = gPowMessage.multiply(yPowR).mod(prime);
         cipher[1] = generator.modPow(r, prime);
@@ -53,17 +64,31 @@ public class ElGamal {
         return res;
     }
 
-    public void setPrivateKey(BigInteger privateKey){
+    public static  void setPrivateKey(BigInteger privateKey){
         if(privateKey == null){
             throw  new IllegalArgumentException("Null Argument to Set private key");
         }
 
-        this.privateKey = privateKey;
-        publicKey = generator.modPow(privateKey,prime);
+        ElGamal.privateKey = privateKey;
+        myPublicKey = generator.modPow(privateKey,prime);
+    }
+
+    public static void setMySKey(Participant p, BigInteger key){
+        mySecretKey.put(p,key);
+        myPukey.put(p,generator.modPow(key,prime));
+
+    }
+
+    public static BigInteger getMyPuKey(Participant p){
+        return myPukey.get(p);
+    }
+
+    public static void setCommonKey(BigInteger commonKey){
+        ElGamal.commonKey = commonKey;
     }
 
 
-    public BigInteger decrypt(BigInteger[] cypher){
+    public static BigInteger decrypt(BigInteger[] cypher){
         if(cypher == null || cypher.length != 2|| cypher[0] == null|| cypher[1] == null ){
             throw new IllegalArgumentException("null or bad length cypher");
         }
@@ -73,21 +98,38 @@ public class ElGamal {
         return msg.equals(BigInteger.ONE) ? BigInteger.ZERO : BigInteger.ONE;
     }
 
-    public BigInteger[] decryptMany(BigInteger[][] table){
-        BigInteger[] res = new BigInteger[table.length];
-        for (int i = 0; i < res.length ; i++) {
-            res[i] = decrypt(table[i]);
+    public static BigInteger decryptMe(Participant p, BigInteger[] cypher){
+        if(cypher == null || cypher.length != 2|| cypher[0] == null|| cypher[1] == null ){
+            throw new IllegalArgumentException("null or bad length cypher");
+        }
+        setPrivateKey(mySecretKey.get(p));
+        BigInteger msg = (cypher[0].multiply(cypher[1].modPow(privateKey.negate(),prime))).mod(prime);
+
+        return msg.equals(BigInteger.ONE) ? BigInteger.ZERO : BigInteger.ONE;
+    }
+
+
+
+    public static List<BigInteger> decryptMany(List<BigInteger[]> table){
+        ArrayList<BigInteger> res = new ArrayList<>(table.size());
+        for (BigInteger[] t: table) {
+            res.add(decrypt(t));
         }
         return res;
     }
 
-    public BigInteger getPublicKey(){
-        return  publicKey;
+    public static Collection<BigInteger> decryptManyME(Participant p,Collection<BigInteger[]> table){
+        ArrayList<BigInteger> res = new ArrayList<>(table.size());
+        for (BigInteger[] t: table) {
+            res.add(decryptMe(p,t));
+        }
+        return res;
     }
 
-    public MyElGamalEncrypter getEncrypter() {
-        return new MyElGamalEncrypter(prime, generator, publicKey);
+    public static BigInteger getmyPublicKey(){
+        return  myPublicKey;
     }
+
 
     public static BigInteger[] homomorphicEncryption(Collection<BigInteger[]> ciphers){
         BigInteger[] res = new  BigInteger[]{BigInteger.ONE,BigInteger.ONE};
@@ -117,12 +159,16 @@ public class ElGamal {
        return SecureDotProductParty.vectorsElemModExpo(cipher,otherWord,prime);
     }
 
-
-    public static BigInteger[][] encryptManyWithKey(BigInteger[] bits, BigInteger y) {
-        BigInteger[][] res = new BigInteger[bits.length][2];
-        for (int i = 0; i <bits.length ; i++) {
-            res[i] = encrypt(bits[i]);
-        }
-        return res;
+    public static BigInteger getPrime(){
+        return prime;
     }
+
+    public static BigInteger getGenerator(){
+        return getGenerator();
+    }
+
+    public static BigInteger getGroup(){
+        return group;
+    }
+
 }

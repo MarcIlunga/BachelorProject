@@ -64,7 +64,7 @@ public class SecureDotProductParty  {
 
 
         //TODO : Constant matrix dimension
-        sDimension = 10; //1 + secureRandom.nextInt(10);
+        sDimension = 100; //1 + secureRandom.nextInt(10);
         rThRow = secureRandom.nextInt(sDimension);
 
         //Genrate Q  and compute b. TODO: Skip rth row in the for an assigne later
@@ -311,10 +311,11 @@ public class SecureDotProductParty  {
     }
 
     public static BigInteger[] vectorsElemModExpo(BigInteger[] v, BigInteger expo, BigInteger prime){
+        BigInteger[] res = new BigInteger[v.length];
         for (int i = 0; i < v.length; i++) {
-            v[i] = v[i].modPow(expo,prime);
+            res[i] = v[i].modPow(expo,prime);
         }
-        return v;
+        return res;
     }
 
 

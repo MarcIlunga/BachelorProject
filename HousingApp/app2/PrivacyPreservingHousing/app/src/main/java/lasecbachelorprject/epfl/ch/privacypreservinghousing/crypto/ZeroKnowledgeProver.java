@@ -8,7 +8,9 @@ public class ZeroKnowledgeProver {
     private BigInteger x;
     private BigInteger h;
     private BigInteger z;
-    private BigInteger prime,group, generator,pMinusOne;
+    private BigInteger prime;
+    private BigInteger group;
+    private BigInteger generator;
     private SecureRandom secureRandom;
     public BigInteger r;
 
@@ -17,7 +19,6 @@ public class ZeroKnowledgeProver {
         this.prime = prime;
         this.group = group;
         this.generator = generator;
-        this.pMinusOne = group.subtract(BigInteger.ONE);
         secureRandom = new SecureRandom();
     }
 

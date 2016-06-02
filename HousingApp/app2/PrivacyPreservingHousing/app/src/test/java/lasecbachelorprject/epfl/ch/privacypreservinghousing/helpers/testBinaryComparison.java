@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Random;
 
+import static java.sql.DriverManager.println;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -19,9 +20,11 @@ public class testBinaryComparison {
         int[] bB = new int[l];
 
         int a  = r.nextInt(64);
-        int b = r.nextInt(32);
+        int b =  r.nextInt(a);
         int tmpA = a;
         int tmpB = b;
+
+        System.out.println("a " + a + " b "+b);
 
         int[] gamas = new int[l];
         int[] omegas = new int[l];
@@ -54,7 +57,9 @@ public class testBinaryComparison {
             }
 
         }
+
         assertEquals(1, count);
+
     }
 
 }

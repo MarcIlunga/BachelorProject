@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.SecureDotProduct;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Person;
@@ -17,7 +16,6 @@ import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Person;
 public class Poll {
     public Owner owner;
     private List<Participant> participantsList;
-    private List<SecureDotProduct> secureDotProducts;
     public int participantsNumber;
     private Map<Participant, BigInteger> participantPublicKey;
 
