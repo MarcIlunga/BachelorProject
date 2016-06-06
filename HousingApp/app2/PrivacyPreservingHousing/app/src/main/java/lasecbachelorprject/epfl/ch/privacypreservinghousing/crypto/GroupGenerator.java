@@ -10,21 +10,16 @@ public class GroupGenerator {
     private static int certainty;
 
     private static BigInteger ONE = BigInteger.ONE;
-    private static BigInteger TWO = ONE.add(ONE);
     private static BigInteger generator, prime, group;
     private static SecureRandom secureRandom;
 
     public GroupGenerator(int minBitLength, int certainty, SecureRandom secureRandom, boolean lengthCheck){
-        if(minBitLength < 512 && lengthCheck )
+        if(minBitLength < 1024 && lengthCheck )
                 throw  new IllegalArgumentException("Prime should have at least 512 bits");
         this.minBitLength = minBitLength;
         this.certainty = certainty;
         this.secureRandom = secureRandom;
         getSafePrime();
-
-    }
-
-    private GroupGenerator(){
 
     }
 
@@ -74,18 +69,6 @@ public class GroupGenerator {
         return group;
     }
 
-/*    public boolean isGenerator(BigInteger p, BigInteger g, int certainty ){
-        if(!p.isProbablePrime(certainty)){
-            Log.d("<<<<", p.toString() + "is not prime ");
-            return false
-        }
-        if(g.mod(p).equals(ZERO)){
-            Log.d("<<<<", p.toString() + " divides " + g.toString());
-            return false
-        }
 
-        BigInteger p
-    }
-*/
 
 }

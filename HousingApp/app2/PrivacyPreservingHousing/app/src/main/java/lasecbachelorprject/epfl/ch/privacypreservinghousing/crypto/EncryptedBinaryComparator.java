@@ -169,7 +169,7 @@ public class EncryptedBinaryComparator {
      * @param cipher1
      * @param cipher2
      */
-    public static List<BigInteger[][]> compareNumbers(BigInteger[]plain1, BigInteger[][] cipher1, BigInteger[][] cipher2){
+    public static List<BigInteger[]> compareNumbers(BigInteger[]plain1, BigInteger[][] cipher1, BigInteger[][] cipher2){
         if (cipher1.length != cipher2.length){
             throw new IllegalArgumentException("Ciphers must have the same size");
         }
@@ -177,13 +177,12 @@ public class EncryptedBinaryComparator {
         checkInput(cipher2);
         int l = cipher1.length;
         //List of encrypted bit by bit comparisons
-       List<BigInteger[][]> encryptedComparisonList = new ArrayList<>();
+
 
 
             //Computation of the gama's factors
             List<BigInteger[]> gamas = new ArrayList<>(l);
             //table of beta's
-            BigInteger [][] betaI = new BigInteger[l][2];
             BigInteger[] tmp;
             BigInteger [] tmp2;
             for (int t = 0; t <l ; t++) {
@@ -196,21 +195,21 @@ public class EncryptedBinaryComparator {
              * Pull the creation outside the loops
              */
             BigInteger[] val;//(l -t +1 )
-            BigInteger[] [] sum = new BigInteger[l][2];
-            BigInteger[][] negGamaT = new BigInteger[l][2];
-            BigInteger[][] omegas = new BigInteger[l][2];
-            BigInteger[][] taus = new BigInteger[l][2];
-            for (int t = 0; t < l; t++) {
+            List<BigInteger[]> sum = new ArrayList<>(l);
+            List<BigInteger[]> negGamaT = new ArrayList<>(l);
+            List<BigInteger[]> omegas = new ArrayList<>(l);
+            List<BigInteger[]> taus = new ArrayList<>(l);
+            for (int t = l -1; t >= 0; t--) {
                 val = ElGamal.encrypt(BigInteger.valueOf(l-t));
                 tmp = ElGamal.getNegativeciphers(gamas.get(t));
-                negGamaT[t] = multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t));
-                sum[t] = homomorphicEncryption(gamas.subList(t+1,l));
-                omegas[t] = homomorphicEncryption(val,sum[t],negGamaT[t]);// E( l-t+1 + sum of (gamav - gmai))
-                taus[t] = homomorphicEncryption(omegas[t], betaI[t]);
+                negGamaT.add(t,multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t)));
+                sum.add(t,homomorphicEncryption(gamas.subList(t+1,l)));
+                omegas.add(t,homomorphicEncryption(val,sum.get(t),negGamaT.get(t)));// E( l-t+1 + sum of (gamav - gmai))
+                taus.add(t,homomorphicEncryption(omegas.get(t), cipher1[t]));
             }
-            encryptedComparisonList.add(taus);
+            return  taus;
 
-            return encryptedComparisonList;
+
     }
 
 
