@@ -1,0 +1,41 @@
+\contentsline {chapter}{\numberline {1}Motivation}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {paragraph}{}{3}
+\contentsline {chapter}{\numberline {2}Definitions}{4}
+\contentsline {section}{\numberline {2.1}Framework}{4}
+\contentsline {paragraph}{}{4}
+\contentsline {section}{\numberline {2.2}Two-Party Dot Product Protocol}{5}
+\contentsline {subparagraph}{}{5}
+\contentsline {section}{\numberline {2.3}ElGamal Cryptosystem}{5}
+\contentsline {subparagraph}{}{6}
+\contentsline {subparagraph}{}{6}
+\contentsline {subparagraph}{}{6}
+\contentsline {section}{\numberline {2.4}Zero-Knowledge Proof}{6}
+\contentsline {chapter}{\numberline {3}Detailed explanation of the protocol}{7}
+\contentsline {section}{\numberline {3.1}Initialization phase}{7}
+\contentsline {section}{\numberline {3.2}Secure gain computation}{7}
+\contentsline {subparagraph}{step 1)}{7}
+\contentsline {subparagraph}{step 2)}{7}
+\contentsline {subparagraph}{step 3)}{7}
+\contentsline {subparagraph}{step 4)}{8}
+\contentsline {section}{\numberline {3.3}Unlinkeable gain comparison}{8}
+\contentsline {subparagraph}{ step 5)}{8}
+\contentsline {subparagraph}{ step 6)}{8}
+\contentsline {subparagraph}{step 7)}{8}
+\contentsline {section}{\numberline {3.4}Chained Comparison Decryption}{9}
+\contentsline {subparagraph}{ step 8)}{9}
+\contentsline {section}{\numberline {3.5}Ranking submission}{9}
+\contentsline {chapter}{\numberline {4}Simulation and results}{10}
+\contentsline {section}{\numberline {4.1}Class list}{10}
+\contentsline {section}{\numberline {4.2}Simulation of the protocol}{11}
+\contentsline {chapter}{\numberline {5}Conclusion}{13}
+\contentsline {paragraph}{Objective:}{13}
+\contentsline {paragraph}{Implementation Status:}{13}
+\contentsline {paragraph}{Future work}{13}
+\contentsline {paragraph}{challenges:}{13}
+\contentsline {paragraph}{Lessons learned:}{13}
+\contentsline {chapter}{\numberline {6}Appendix}{14}
+\contentsline {subparagraph}{Proof of correctness of gain comparison.}{14}
+\contentsline {subparagraph}{ElGamal group generation.}{14}
+\contentsline {subparagraph}{Proof of correctness of masked gain.}{14}

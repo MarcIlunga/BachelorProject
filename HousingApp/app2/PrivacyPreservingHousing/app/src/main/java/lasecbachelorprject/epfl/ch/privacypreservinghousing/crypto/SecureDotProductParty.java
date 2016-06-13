@@ -36,20 +36,16 @@ public class SecureDotProductParty  {
     private BigInteger  rhoMax;
     private BigInteger  beta;
 
-    public BigInteger [] getPrimeVector() {
-        return primeVector.clone();
-    }
-
     private BigInteger [] primeVector;
 
     public BigInteger  dotProduct;
     public BigInteger gain;
 
     //TODO: Copy the values so that the vector can't be modified in the outside
-    public SecureDotProductParty(BigInteger rho){
+    public SecureDotProductParty(SecureRandom random){
 
-        secureRandom = new SecureRandom();
-        this.rhoMax = new BigInteger(String.valueOf(rho));
+        secureRandom = random;
+
 
     }
 
@@ -64,7 +60,7 @@ public class SecureDotProductParty  {
 
 
         //TODO : Constant matrix dimension
-        sDimension = 100; //1 + secureRandom.nextInt(10);
+        sDimension = 10; //1 + secureRandom.nextInt(10);
         rThRow = secureRandom.nextInt(sDimension);
 
         //Genrate Q  and compute b. TODO: Skip rth row in the for an assigne later
@@ -211,7 +207,7 @@ public class SecureDotProductParty  {
         BigInteger [] rhoVector;
 
 
-        rho = new BigInteger(rhoMax.bitLength() -1, secureRandom);
+        rho = BigInteger.ZERO;//new BigInteger(rhoMax.bitLength() -1, secureRandom);
         rhoVector = primeVector.clone();
         rhoVector [rhoVector.length - 1 ] = rho;
 
@@ -404,5 +400,7 @@ public class SecureDotProductParty  {
     }
 
 
-
+    public void setRho(BigInteger rho) {
+        this.rhoMax = rho;
+    }
 }

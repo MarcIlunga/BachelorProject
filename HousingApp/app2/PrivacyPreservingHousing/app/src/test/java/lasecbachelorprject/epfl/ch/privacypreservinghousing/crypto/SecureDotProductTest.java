@@ -17,6 +17,7 @@ public class SecureDotProductTest {
     public void testDotProduct() throws Exception {
         StopWatch timer = StopWatch.getStopWatch();
         PrintWriter writer = new PrintWriter("DotProdTime", "UTF-8");
+        SecureRandom random = new SecureRandom();
 
         for (int i = 1; i < 25 ; i++) {
 
@@ -29,9 +30,9 @@ public class SecureDotProductTest {
                 alicesVector[j] = BigInteger.valueOf(rd.nextInt(10));
                 bobsVector[j] = BigInteger.valueOf(rd.nextInt(10));
             }
-            SecureDotProductParty alice = new SecureDotProductParty(BigInteger.TEN);
+            SecureDotProductParty alice = new SecureDotProductParty(random);
             alice.setMyvector(alicesVector);
-            SecureDotProductParty bob = new SecureDotProductParty(BigInteger.TEN);
+            SecureDotProductParty bob = new SecureDotProductParty(random);
             bob.setMyvector(bobsVector);
             alice.initiateDotProduct();
             alice.sendInitialDataToOtherParty(bob);

@@ -9,11 +9,11 @@ import android.view.View;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.R;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.Poll;
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Initiator;
 
 public class CreatePollActivity extends AppCompatActivity {
 
-    public static Owner owner;
+    public static Initiator initiator;
     public static Poll poll;
      private TextInputEditText location, from, to, distance, travelers, gender,
                                 privateRoom, sharedRoom, smoking,kidsAtHome, children;
@@ -57,10 +57,10 @@ public class CreatePollActivity extends AppCompatActivity {
         criterion[7] = new BigInteger(sharedRoom.getText().toString());
         criterion[8] = new BigInteger(smoking.getText().toString());
         criterion[9] = new BigInteger(kidsAtHome.getText().toString());
-        owner  = new Owner(criterion, new BigInteger[]{BigInteger.ONE});
-        owner.initiatePoll(5);
-        DataBase.getDataBase().setOwner(owner);
-        DataBase.getDataBase().setPoll(owner.myPoll);
+        initiator  = new Initiator(criterion, new BigInteger[]{BigInteger.ONE});
+        initiator.initiatePoll(5);
+        DataBase.getDataBase().setInitiator(initiator);
+        DataBase.getDataBase().setPoll(initiator.myPoll);
     */
     }
 }

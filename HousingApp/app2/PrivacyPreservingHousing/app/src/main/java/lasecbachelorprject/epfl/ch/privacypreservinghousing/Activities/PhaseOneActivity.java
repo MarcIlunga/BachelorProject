@@ -7,13 +7,13 @@ import android.widget.TextView;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.R;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.DataBase;
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Initiator;
 
 public class PhaseOneActivity extends AppCompatActivity {
 
     DataBase dataBase = DataBase.getDataBase();
-    Owner owner = dataBase.getOwner();
-    int replies = dataBase.getPoll().participantsNumber;
+    Initiator initiator = dataBase.getInitiator();
+    //int replies = dataBase.getPoll(pollNb).participantsNumber;
     int replyCount = 0;
 
     TextView instruction;
@@ -38,8 +38,8 @@ public class PhaseOneActivity extends AppCompatActivity {
                 if(replyCount <= replies){
                     SecureDotProductParty part = dataBase.participants.get(replyCount).secureDotProduct;
                     part.initiateDotProduct();
-                    part.sendInitialDataToOtherParty(owner.me);
-                    owner.me.sendAH(part);
+                    part.sendInitialDataToOtherParty(initiator.secureDotProductParty);
+                    initiator.secureDotProductParty.sendAH(part);
                     replyCount++;
                     if(replyCount < replies ) {
                         instruction.setText("There are still" + (replies - replyCount) +

@@ -49,7 +49,7 @@ public class ZeroKnowledgeProver {
         computeZ(c);
     }
 
-    public void setX(BigInteger x){
+    public void setKeyToProve(BigInteger x){
         this.x = x;
     }
 }

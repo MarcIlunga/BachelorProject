@@ -14,19 +14,9 @@ public class DataBaseTest {
 
     @Test
     public void testKeyGenerationAndProof(){
-        mockDataBase();
-        DataBase dataBase = InitializeDatabase.database;
-        List<Participant> participants = InitializeDatabase.participants;
 
-        for (Participant p: participants) {
-            p.generatePrivateKey();
-            try {
-                assertTrue(dataBase.proveKeyToOthers(p));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
 
-        }
+
     }
 
 }

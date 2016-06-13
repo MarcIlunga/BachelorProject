@@ -13,8 +13,8 @@ public class Person  {
 
     }
 
-    public void sendInitialDataToOwner(Owner owner) {
-        ((Participant)this).secureDotProduct.sendInitialDataToOtherParty(owner.me);
+    public void sendInitialDataToOwner(Initiator initiator) {
+        ((Participant)this).secureDotProduct.sendInitialDataToOtherParty(initiator.secureDotProductParty);
     }
 
 

@@ -11,61 +11,56 @@ import java.util.Map;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 
-import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ElGamal.decrypt;
-import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ElGamal.decryptMany;
-import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ElGamal.homomorphicEncryption;
-import static lasecbachelorprject.epfl.ch.privacypreservinghousing.crypto.ElGamal.multHomomorphicEncryption;
-
 
 public class EncryptedBinaryComparator {
 
-    private static BigInteger[][] myGain;
-    private static Map<Integer, BigInteger[][]> othersGain;
-    private static List<BigInteger[][]> encryptedComparisonList;
-    private static BigInteger[] plainGain;
-    private static BigInteger[] othersPlain;
-    private static int l;
-    private static EncryptedBinaryComparator gainComparisonTool;
-    private static Map<Participant,BigInteger[][]> selfGain;
-    private static Map<Participant,Map<Integer, BigInteger[][]>> selfOthersGain;
-    private static Map<Participant,List<BigInteger[][]>> selfCryptComp;
-    private static Map<Participant,BigInteger[]> selfPlainGain;
-    public  static List<BigInteger[]> gamas;
-    public static BigInteger[][] betaI;
-    public  static BigInteger[] tmp;
-    public static BigInteger[] tmp2;//(l -t +1 )
-    public static BigInteger[] val;
-    public static BigInteger[][] sum;
-    public static BigInteger[][] negGamaT;
-    public static BigInteger[][] omegas;
-    public static BigInteger[][] taus;
+    private  BigInteger[][] myGain;
+    private  Map<Integer, BigInteger[][]> othersGain;
+    private  List<BigInteger[][]> encryptedComparisonList;
+    private  BigInteger[] plainGain;
+    private  BigInteger[] othersPlain;
+    private  int l;
+    private  EncryptedBinaryComparator gainComparisonTool;
+    private  Map<Participant,BigInteger[][]> selfGain;
+    private  Map<Participant,Map<Integer, BigInteger[][]>> selfOthersGain;
+    private  Map<Participant,List<BigInteger[][]>> selfCryptComp;
+    private  Map<Participant,BigInteger[]> selfPlainGain;
+    public   List<BigInteger[]> gamas;
+    public  BigInteger[][] betaI;
+    public   BigInteger[] tmp;
+    public  BigInteger[] tmp2;//(l -t +1 )
+    public  BigInteger[] val;
+    public  BigInteger[][] sum;
+    public  BigInteger[][] negGamaT;
+    public  BigInteger[][] omegas;
+    public  BigInteger[][] taus;
+    private  ElGamal elGamal;
 
-    private EncryptedBinaryComparator(){
+    public EncryptedBinaryComparator(ElGamal elGamal){
+        if(elGamal == null){
+            throw new IllegalArgumentException("Null cryptosystem");
+        }
         selfCryptComp = new HashMap<>();
         selfGain = new HashMap<>();
         selfPlainGain = new HashMap<>();
         selfOthersGain = new HashMap<>();
         othersGain = new HashMap<>();
+        this.elGamal = elGamal;
     }
 
-    public static EncryptedBinaryComparator getGainComparisonTool(){
-        if(gainComparisonTool == null){
-            gainComparisonTool = new EncryptedBinaryComparator();
-        }
-        return gainComparisonTool;
-    }
 
-    public static void setMyGain(BigInteger [][] encryptedGain, BigInteger[]plainGain){
+
+    public void setMyGain(BigInteger [][] encryptedGain, BigInteger[]plainGain){
         if(encryptedGain == null)
             throw new NullPointerException("Null encryptedGain");
         l = encryptedGain.length;
         myGain = encryptedGain.clone();
-        EncryptedBinaryComparator.plainGain = plainGain.clone();
+        this.plainGain = plainGain.clone();
     }
-    public  static void setL(int l){
-        EncryptedBinaryComparator.l = l;
+    public  void setL(int l){
+        this.l = l;
     }
-    public static void setMyGainMe(Participant p, BigInteger [][] encryptedGain, BigInteger[]plainGain){
+    public  void setMyGainMe(Participant p, BigInteger [][] encryptedGain, BigInteger[]plainGain){
         if(encryptedGain == null)
             throw new NullPointerException("Null encryptedGain");
         selfGain.put(p,encryptedGain);
@@ -76,11 +71,11 @@ public class EncryptedBinaryComparator {
 
 
 
-    public static void setOthersGain(Integer participantIndex, BigInteger[][] gain){
+    public  void setOthersGain(Integer participantIndex, BigInteger[][] gain){
         othersGain.put(participantIndex,gain);
     }
 
-    public static void setOthersGainMe(Participant p,Integer participantIndex, BigInteger[][] gain){
+    public  void setOthersGainMe(Participant p,Integer participantIndex, BigInteger[][] gain){
         if(selfOthersGain.get(p) == null){
 
         }
@@ -89,7 +84,7 @@ public class EncryptedBinaryComparator {
     /**
      * Compares own gain with other's
      */
-    public static void compareWithParticipants(){
+    public  void compareWithParticipants(){
         //List of encrypted bit by bit comparisons
         encryptedComparisonList = new ArrayList<>();
         //Procedure for candidate I
@@ -100,19 +95,19 @@ public class EncryptedBinaryComparator {
             //table of beta's
             betaI = othersGain.get(index).clone();
             for (int t = 0; t < l  ; t++) {
-                tmp = homomorphicEncryption(betaI[t],myGain[t]);
-                tmp2 = multHomomorphicEncryption(betaI[t],plainGain[t].multiply(BigInteger.valueOf(-2)));
-                gamas.add(t,homomorphicEncryption(tmp, tmp2));
+                tmp = elGamal.homomorphicEncryption(betaI[t],myGain[t]);
+                tmp2 = elGamal.multHomomorphicEncryption(betaI[t],plainGain[t].multiply(BigInteger.valueOf(-2)));
+                gamas.add(t,elGamal.homomorphicEncryption(tmp, tmp2));
                 //Un-comment and bring fields back in the method
-                BigInteger expe1 = plainGain[t].add(decrypt(betaI[t])).mod(BigInteger.valueOf(2));
+                BigInteger expe1 = plainGain[t].add(elGamal.decrypt(betaI[t])).mod(BigInteger.valueOf(2));
                 BigInteger expe2 = plainGain[t].add(othersPlain[t]).mod(BigInteger.valueOf(2));
-                BigInteger res = decrypt(gamas.get(t));
+                BigInteger res = elGamal.decrypt(gamas.get(t));
 
-                if(!(othersPlain[t].equals(decrypt(betaI[t]))))
+                if(!(othersPlain[t].equals(elGamal.decrypt(betaI[t]))))
                     throw new IllegalStateException();
-                if(!othersPlain[t].equals(decrypt(othersGain.get(index)[t])))
+                if(!othersPlain[t].equals(elGamal.decrypt(othersGain.get(index)[t])))
                     throw new IllegalStateException();
-                if(!plainGain[t].equals(decrypt(myGain[t])))
+                if(!plainGain[t].equals(elGamal.decrypt(myGain[t])))
                     throw new IllegalStateException();
                 if(!expe1.equals(expe2))
                     throw new IllegalStateException();
@@ -128,30 +123,30 @@ public class EncryptedBinaryComparator {
             negGamaT = new BigInteger[l][2];
             omegas = new BigInteger[l][2];
             taus = new BigInteger[l][2];
-            List<BigInteger> plainGama = decryptMany(gamas);
+            List<BigInteger> plainGama = elGamal.decryptMany(gamas);
             for (int t = l-1; t >= 0; t--) {
-                val = ElGamal.encrypt(BigInteger.valueOf(l-t));
-                tmp = ElGamal.getNegativeciphers(gamas.get(t));
-                negGamaT[t] = multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t));
-                sum[t] = homomorphicEncryption(gamas.subList(t+1,l));
-                omegas[t] = homomorphicEncryption(val, sum[t], negGamaT[t]);// E( l-t+1 + sum of (gamav - gmai) - gamai)
-                taus[t] = homomorphicEncryption(omegas[t], myGain[t]);
+                val = elGamal.encrypt(BigInteger.valueOf(l-t));
+                tmp = elGamal.getNegativeciphers(gamas.get(t));
+                negGamaT[t] = elGamal.multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t));
+                sum[t] = elGamal.homomorphicEncryption(gamas.subList(t+1,l));
+                omegas[t] = elGamal.homomorphicEncryption(val, sum[t], negGamaT[t]);// E( l-t+1 + sum of (gamav - gmai) - gamai)
+                taus[t] = elGamal.homomorphicEncryption(omegas[t], myGain[t]);
                 BigInteger expSum = BigInteger.valueOf(l-t);
                 BigInteger expeNegGama = plainGama.get(t).multiply(expSum).negate();
                 BigInteger expGamSum = SecureDotProductParty.vectorElementsSum((BigInteger[])plainGama.subList(t+1,l).toArray(new BigInteger[l-t-1]));
                 BigInteger expeOmeg = expSum.add(expeNegGama).add(expGamSum);
                 BigInteger expTau = expeOmeg.add(plainGain[t]);
-                if(!compEncrypted(plainGama.get(t),(decrypt(gamas.get(t)))))
+                if(!compEncrypted(plainGama.get(t),(elGamal.decrypt(gamas.get(t)))))
                     throw new IllegalStateException();
-                if(!compEncrypted(expSum,decrypt(val)))
+                if(!compEncrypted(expSum,elGamal.decrypt(val)))
                     throw  new IllegalStateException();
-                if(!compEncrypted(expeNegGama,decrypt(negGamaT[t])))
+                if(!compEncrypted(expeNegGama,elGamal.decrypt(negGamaT[t])))
                     throw new IllegalStateException();
-                if(!compEncrypted(expGamSum,decrypt(sum[t])))
+                if(!compEncrypted(expGamSum,elGamal.decrypt(sum[t])))
                     throw new IllegalStateException();
-                if(!compEncrypted(expeOmeg,decrypt(omegas[t])))
+                if(!compEncrypted(expeOmeg,elGamal.decrypt(omegas[t])))
                     throw new IllegalStateException();
-                if(!compEncrypted(expTau,decrypt(taus[t])))
+                if(!compEncrypted(expTau,elGamal.decrypt(taus[t])))
                     throw new IllegalStateException();
 
             }
@@ -169,13 +164,13 @@ public class EncryptedBinaryComparator {
      * @param cipher1
      * @param cipher2
      */
-    public static List<BigInteger[]> compareNumbers(BigInteger[]plain1, BigInteger[][] cipher1, BigInteger[][] cipher2){
+    public  List<BigInteger[]> compareNumbers(BigInteger[]plain1, BigInteger[][] cipher1, BigInteger[][] cipher2){
         if (cipher1.length != cipher2.length){
             throw new IllegalArgumentException("Ciphers must have the same size");
         }
         checkInput(cipher1);
         checkInput(cipher2);
-        int l = cipher1.length;
+        int l = plain1.length;
         //List of encrypted bit by bit comparisons
 
 
@@ -186,9 +181,9 @@ public class EncryptedBinaryComparator {
             BigInteger[] tmp;
             BigInteger [] tmp2;
             for (int t = 0; t <l ; t++) {
-                tmp = homomorphicEncryption(cipher1[t],cipher2[t]);
-                tmp2 = multHomomorphicEncryption(cipher2[t],plain1[t].multiply(BigInteger.valueOf(-2)));
-                gamas.add(t,homomorphicEncryption(tmp,tmp2));
+                tmp = elGamal.homomorphicEncryption(cipher1[t],cipher2[t]);
+                tmp2 = elGamal.multHomomorphicEncryption(cipher2[t],plain1[t].multiply(BigInteger.valueOf(-2)));
+                gamas.add(t,elGamal.homomorphicEncryption(tmp,tmp2));
             }
             /*
              * Optimisation begin with t = l so singe loop
@@ -199,13 +194,13 @@ public class EncryptedBinaryComparator {
             List<BigInteger[]> negGamaT = new ArrayList<>(l);
             List<BigInteger[]> omegas = new ArrayList<>(l);
             List<BigInteger[]> taus = new ArrayList<>(l);
-            for (int t = l -1; t >= 0; t--) {
-                val = ElGamal.encrypt(BigInteger.valueOf(l-t));
-                tmp = ElGamal.getNegativeciphers(gamas.get(t));
-                negGamaT.add(t,multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t)));
-                sum.add(t,homomorphicEncryption(gamas.subList(t+1,l)));
-                omegas.add(t,homomorphicEncryption(val,sum.get(t),negGamaT.get(t)));// E( l-t+1 + sum of (gamav - gmai))
-                taus.add(t,homomorphicEncryption(omegas.get(t), cipher1[t]));
+            for (int t = 0; t < l; t++) {
+                val = elGamal.encrypt(BigInteger.valueOf(l-t));
+                tmp = elGamal.getNegativeciphers(gamas.get(t));
+                negGamaT.add(t,elGamal.multHomomorphicEncryption(tmp,BigInteger.valueOf(l-t)));
+                sum.add(t,elGamal.homomorphicEncryption(gamas.subList(t+1,l)));
+                omegas.add(t,elGamal.homomorphicEncryption(val,sum.get(t),negGamaT.get(t)));// E( l-t+1 + sum of (gamav - gmai))
+                taus.add(t,elGamal.homomorphicEncryption(omegas.get(t), cipher1[t]));
             }
             return  taus;
 
@@ -218,7 +213,7 @@ public class EncryptedBinaryComparator {
      * Mostly for size
      * @param cipher1
      */
-    private static void checkInput(BigInteger[][] cipher1) {
+    private  void checkInput(BigInteger[][] cipher1) {
         for (BigInteger[] c: cipher1) {
             if(c.length!= 2 || c[0] == null || c[1] == null){
                 throw new IllegalArgumentException("Bad cipher as argument either size or one of cipher compoment is Null");
@@ -226,11 +221,9 @@ public class EncryptedBinaryComparator {
         }
     }
 
-    public static BigInteger[][] getEncryptedCompWithCandidate(Integer candidateIndex){
-        return encryptedComparisonList.get(candidateIndex);
-    }
 
-    public static List<BigInteger[][]> getEncryptedComparisons(){
+
+    public  List<BigInteger[][]> getEncryptedComparisons(){
         return new ArrayList<>(encryptedComparisonList);
     }
 
@@ -243,7 +236,7 @@ public class EncryptedBinaryComparator {
      * @param prime
      * @return
      */
-    public static List<List<BigInteger[][]>> chainedDecryption(List<List<BigInteger[][]>> list, int myIndex, BigInteger privateKey, BigInteger prime, BigInteger group) {
+    public  List<List<BigInteger[][]>> chainedDecryption(List<List<BigInteger[][]>> list, int myIndex, BigInteger privateKey, BigInteger prime, BigInteger group) {
         BigInteger r;
         for (int i = 0; i < list.size() ; i++) {
             if(i != myIndex){
@@ -269,11 +262,11 @@ public class EncryptedBinaryComparator {
      * Returns the binary representation of a number as an array.
      * i.e if g = abcd with a,b,c,d in {0,1}
      * then the array is [d,c,b,a] and indexOf(d) = 0;
-     * @param gain the number to convert
+     * @param number the number to convert
      * @return
      */
-    public static BigInteger[] createBinaryArray(BigInteger gain, int length){
-        String t = (gain.toString(2));
+    public static BigInteger[] createBinaryArrayOfLength(BigInteger number, int length){
+        String t = (number.toString(2));
         int l = t.length();
         BigInteger[] binaryVector = new BigInteger[length];
         for (int i = 0; i < length ; i++) {
@@ -287,11 +280,37 @@ public class EncryptedBinaryComparator {
         return  binaryVector;
     }
 
-    public static int finalDecryption(List<BigInteger[][]> comp){
+    public static BigInteger convertNumberFromArray(BigInteger[] vect){
+        BigInteger res = BigInteger.ZERO;
+        BigInteger exp = BigInteger.ONE;
+        BigInteger two = BigInteger.ONE.add(BigInteger.ONE);
+        for (int i = 0; i < vect.length ; i++) {
+            res = res.add(vect[i].multiply(exp));
+            exp = exp.multiply(two);
+        }
+        return res;
+    }
+
+    public static BigInteger[] createBinaryArray(BigInteger number, int length) {
+        String t = (number.toString(2));
+        int l = t.length();
+        BigInteger[] binaryVector = new BigInteger[length];
+        for (int i = 0; i < length ; i++) {
+            if(i < l) {
+                binaryVector[i] = new BigInteger(String.valueOf(t.charAt(l - i - 1)));
+            }
+            else{
+                binaryVector[i] = BigInteger.ZERO;
+            }
+        }
+        return  binaryVector;
+    }
+
+    public  int finalDecryption(List<List<BigInteger[]>> comp){
         ArrayList<BigInteger> res;
         int nb = 0;
-        for (BigInteger[][] b: comp) {
-            res = (ArrayList)decryptMany(Arrays.asList(b));
+        for (List<BigInteger[]> b: comp) {
+            res = (ArrayList)elGamal.decryptMany(b);
             for (BigInteger c: res) {
                     if(c.equals(BigInteger.ZERO)){
                         nb++;
@@ -302,23 +321,23 @@ public class EncryptedBinaryComparator {
     }
 
 
-    public static BigInteger[] getOthersPlain() {
+    public  BigInteger[] getOthersPlain() {
         return othersPlain;
     }
 
-    public static void setOthersPlain(BigInteger[] othersPlain) {
-        EncryptedBinaryComparator.othersPlain = othersPlain;
+    public  void setOthersPlain(BigInteger[] othersPlain) {
+        this.othersPlain = othersPlain;
     }
 
-    private static boolean compEncrypted(BigInteger expected, BigInteger res){
+    private  boolean compEncrypted(BigInteger expected, BigInteger res){
         return (!expected.equals(BigInteger.ZERO) && res.equals(BigInteger.ONE) ||
                 expected.equals(BigInteger.ZERO) && res.equals(BigInteger.ZERO));
     }
 
-    public static int findDiffindex(BigInteger n1, BigInteger n2){
+    public  int findDiffindex(BigInteger n1, BigInteger n2){
         int length = Math.max(n1.bitLength(),n2.bitLength());
-        BigInteger[] v1 = createBinaryArray(n1,length);
-        BigInteger[] v2 = createBinaryArray(n2,length);
+        BigInteger[] v1 = createBinaryArrayOfLength(n1,length);
+        BigInteger[] v2 = createBinaryArrayOfLength(n2,length);
         int index = v1.length - 1;
         boolean found = false;
         while(!found){

@@ -9,27 +9,29 @@ import java.util.List;
 import java.util.Map;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.Activities.Application;
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Initiator;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 
 public class DataBase {
 
-    public Owner owner;
+    public Initiator initiator;
     public static Poll poll;
+    private static List<Poll> polls;
     private static List<Participant> participants;
     private static List<List<BigInteger[][]>> V; //Vector off all comparisons
     public static DataBase dataBase;
-    private static Map<Participant,BigInteger[]> winnersVect;
+    private static Map<Participant,BigInteger[]> winnersVector;
     private static Map<Participant, Integer> whinersRanking;
     private static BigInteger commonKey = null;
-    private int participantsNumber;
     private int length;
-    private int nbGoodCanditates;
+    private int nbGoodCandidates;
+    private BigInteger prime, group, generator;
 
     private  DataBase(){
+        polls = new ArrayList<>();
         participants = new ArrayList<>();
         whinersRanking = new HashMap<>();
-        winnersVect = new HashMap<>();
+        winnersVector = new HashMap<>();
     }
 
     public static DataBase getDataBase(){
@@ -39,58 +41,66 @@ public class DataBase {
         return dataBase;
     }
 
-    public void setOwner (Owner owner){
-        this.owner = owner;
+    public void securitySetUp(BigInteger prime, BigInteger group, BigInteger generator){
+        this.prime = prime;
+        this.group = group;
+        this.generator = generator;
     }
-    public void setPoll(Poll poll){
-        this.poll = poll;
-    }
-    public void addParticipant(Participant p){
-        participants.add(participantsNumber,p);
-        p.setMyCandidateNumber(participantsNumber);
-        participantsNumber += 1;
-    }
-
-    public void publishBitLength(int length){
-        this.length = length;
+    public int initiateProtocol(Initiator initiator,int nbParticipants, int nbSeekedCandidates, int bitLength){
+        Poll newPoll = new Poll(nbParticipants);
+        newPoll.setInitiator(initiator);
+        newPoll.setBitLength(bitLength);
+        newPoll.setSeekedCandidates(nbSeekedCandidates);
+        polls.add(newPoll);
+        return polls.indexOf(newPoll);
     }
 
-    public int getL(){
-        return length;
+
+    public int addParticipant(Participant p,int pollNb){
+        return polls.get(pollNb).addParticipants(p);
     }
 
-    public int getK(){
-        return nbGoodCanditates;
+
+    public int getBitLength(int pollNb){
+        return polls.get(pollNb).getBitLength();
+    }
+
+    public int getNbGoodCandidates(int pollNb){
+        return polls.get(pollNb).getNbGoodCandidates();
     }
 
     public List<Participant> getParticipants(){
         return new ArrayList(participants);
     }
 
-    public Poll getPoll(){
-        return poll;
+    public Poll getPoll(int pollNb){
+        return polls.get(pollNb);
     }
 
-    public Owner getOwner(){
-        return owner;
+    public Initiator getInitiator(){
+        return initiator;
     }
 
-    public void computeGainSecurely(Participant participant, Owner owner) {
+    public void computeGainSecurely(Participant participant, Initiator initiator) {
         participant.secureDotProduct.initiateDotProduct();
-        participant.sendInitialDataToOwner(owner);
-        owner.me.sendAH(participant.secureDotProduct);
-        participant.convertGain(owner.l);
+        participant.sendInitialDataToOwner(initiator);
+        initiator.secureDotProductParty.sendAH(participant.secureDotProduct);
+        participant.convertGain(initiator.l);
     }
 
-    public void publishElGamalPublicKey(Participant p, BigInteger key){
+    public void publishElGamalPublicKey(Participant p, int pollNb){
+        Poll poll = polls.get(pollNb);
+        BigInteger key = p.getPubKey();
         poll.publicshKey(p,key);
     }
 
     //TODO
-    public static boolean proveKeyToOthers(Participant participant) throws IllegalAccessException {
+    public static boolean proveKeyToOthers(Participant participant, int pollNb) throws IllegalAccessException {
         boolean proof = true;
         BigInteger c = BigInteger.ZERO;
+        Poll poll = polls.get(pollNb);
         BigInteger key = poll.getKeyOfParticipant(participant);
+        List<Participant> participants = poll.getparticipants();
         if(key == null){
             throw  new IllegalAccessException("The public key of: "+participant.toString() +" is not in the DataBase" );
         }
@@ -121,8 +131,10 @@ public class DataBase {
         return commonKey;
     }
 
-    public static void pushComparisonVector(Participant p, List<BigInteger[][]> epsilon){
-        V.add(participants.indexOf(p), epsilon);
+    public static void pushComparisonVector(Participant p, int idx){
+        Poll poll = polls.get(idx);
+        poll.addComparison(p.sendEncryptedComparisonToDB(),p.getParticipantNumber());
+
     }
 
 
@@ -134,22 +146,62 @@ public class DataBase {
     /**
      *
      */
-    public static void sendFinalDecryptionToParticipants(){
-        int nbParticipants = participants.size();
-        if(nbParticipants != V.size()){
-            throw new RSInvalidStateException("Fatal error");
-        }
-        for (int i = 0; i < nbParticipants ; i++) {
-            participants.get(i).receiveFinalComp(V.get(i));
-        }
+
+
+    public void setNbGoodCandidates(int nbGoodCandidates) {
+        this.nbGoodCandidates = nbGoodCandidates;
     }
 
-    public void setNbGoodCanditates(int nbGoodCanditates) {
-        this.nbGoodCanditates = nbGoodCanditates;
+    public static void submitsResults(Participant participant, int pollNb){
+        if(participant.choosen()){
+            Poll p = polls.get(pollNb);
+            p.submitRanking(participant);
+            p.sumbitAnswers(participant);
+        }
+
     }
 
-    public static void submitsResults(Participant participant, int ranking, BigInteger[] wPrimeVector){
-        winnersVect.put(participant,wPrimeVector);
-        whinersRanking.put(participant,ranking);
+
+    public void InitiateDotproduct(Participant p, int pollNb) {
+        p.initiateGainComputation();
+        p.sendInitialDataToOwner(polls.get(pollNb).getInitiator());
+        polls.get(pollNb).getInitiator().setCurrParticipant(p.getParticipantNumber());
+    }
+
+    public void respondToParticipant(Initiator initiator, int currParticipant,int pollNb) {
+        Poll p = polls.get(pollNb);
+        initiator.secureDotProductParty.sendAH(p.getParticipant(currParticipant).secureDotProduct);
+    }
+
+    public BigInteger getCommonKey(int pollNb) {
+        return polls.get(pollNb).getPubKey().mod(prime);
+    }
+
+    public void setPrime(BigInteger prime) {
+        this.prime = prime;
+    }
+
+    public void setGroup(BigInteger group) {
+        this.group = group;
+    }
+
+    public void setGenerator(BigInteger generator) {
+        this.generator = generator;
+    }
+
+    public void publishEncryptedGain(Participant p, int pollNb) {
+        Poll poll = polls.get(pollNb);
+        poll.sendEncryptedGainToOthers(p);
+    }
+
+    public void sendDataForChainedDecryption(Participant p, int pollNb) {
+        Poll poll = polls.get(pollNb);
+        p.partilaDecryption(poll.getComparisons());
+
+    }
+
+    public void sendLastCompartison(Participant p, int pollNb) {
+        Poll poll = polls.get(pollNb);
+        poll.sendResultToParticipants(p);
     }
 }

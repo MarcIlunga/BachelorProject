@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.DataBase;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.helpers.Poll;
-import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Owner;
+import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Initiator;
 import lasecbachelorprject.epfl.ch.privacypreservinghousing.user.Participant;
 
 import static junit.framework.Assert.assertTrue;
@@ -15,26 +15,11 @@ import static org.junit.Assert.assertEquals;
 
 public class Phase1Test {
 
-    public Owner owner;
+    public Initiator initiator;
     public DataBase database;
     public Poll poll;
 
-    @Test
-    public void TestPhase1EqualWorks() {
-        mockDataBase();
-        database = InitializeDatabase.database;
-        owner = InitializeDatabase.owner;
-        for (Participant p : InitializeDatabase.participants) {
-            database.addParticipant(p);
-            database.computeGainSecurely(p, owner);
-            BigInteger expectedgain = SecureDotProductParty.normalDotProduct(p.getReplyVector(), owner.getMyAttVector()).add(owner.me.getRhoForParticipant());
-            assertEquals(expectedgain, p.secureDotProduct.getBeta());
-        }
-        for (int i = 1; i < 9; i++) {
-            assertTrue(InitializeDatabase.participants.get(0).secureDotProduct.getBeta().compareTo(InitializeDatabase.participants.get(i).secureDotProduct.getBeta()) == 1);
-            assertTrue(InitializeDatabase.participants.get(i).secureDotProduct.getBeta().compareTo(InitializeDatabase.participants.get(i + 1).secureDotProduct.getBeta()) == 1);
 
-    }
 
     /*
     @Test
@@ -50,12 +35,12 @@ public class Phase1Test {
             weightGr[i] = BigInteger.ONE;
         }
 
-        owner = new Owner(ownerEqCriterion, ownerGrCriterion, weightEq, weightGr);
-        owner.initiatePoll(6);
-        poll = owner.myPoll;
-        poll.setOwner(owner);
+        initiator = new Initiator(ownerEqCriterion, ownerGrCriterion, weightEq, weightGr);
+        initiator.initiatePoll(6);
+        poll = initiator.myPoll;
+        poll.setInitiator(initiator);
         database = DataBase.getDataBase();
-        database.setOwner(owner);
+        database.setInitiator(initiator);
         database.setPoll(poll);
         List<Participant> participants = new ArrayList<>(6);
         for (int i = 0; i < 6; i++) {
@@ -75,8 +60,8 @@ public class Phase1Test {
 
         for (Participant p : participants) {
             database.addParticipant(p);
-            database.computeGainSecurely(p, owner);
-            int expectedgain = SecureDotProductParty.normalDotProduct(p.getReplyVector(), owner.getMyAttVector()) - owner.me.getRhoForParticipant();
+            database.computeGainSecurely(p, initiator);
+            int expectedgain = SecureDotProductParty.normalDotProduct(p.getReplyVector(), initiator.getMyAttVector()) - initiator.secureDotProductParty.getRhoForParticipant();
             assertEquals(expectedgain, p.secureDotProduct.getBeta());
         }
         for (int i = 1; i < 5; i++) {
@@ -90,7 +75,7 @@ public class Phase1Test {
 
 
 
- }
+
 }
 
 

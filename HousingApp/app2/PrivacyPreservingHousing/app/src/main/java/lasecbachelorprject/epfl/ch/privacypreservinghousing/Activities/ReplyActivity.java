@@ -15,7 +15,7 @@ public class ReplyActivity extends AppCompatActivity {
     private TextInputEditText location, from, to, distance, travelers, gender,
             privateRoom, sharedRoom, smoking,kidsAtHome, children;
     private FloatingActionButton saveSurvey;
-    int replies = DataBase.getDataBase().getPoll().participantsNumber;
+    int replies =0;// DataBase.getDataBase().getPoll(pollNb).participantsNumber;
     int replyCount = 0;
 
     @Override
